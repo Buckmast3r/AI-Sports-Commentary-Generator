@@ -179,8 +179,7 @@ ffmpeg -version
 # Check logs
 tail -f commentary_generator.log
 
-# Try with verbose output
-python main.py -v  # (if we add verbose flag)
+# Try running with more verbose output by checking the logs
 ```
 
 ## What's Next?

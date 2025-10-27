@@ -35,7 +35,8 @@ RUN mkdir -p output temp
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
-ENV OLLAMA_HOST=http://host.docker.internal:11434
+# Default to localhost for ollama, override with docker-compose or --env
+ENV OLLAMA_HOST=http://localhost:11434
 
 # Expose no ports (this is a batch processing app)
 

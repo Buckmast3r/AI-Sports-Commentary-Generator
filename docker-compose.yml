@@ -10,12 +10,23 @@ services:
     ports:
       - "11434:11434"
     restart: unless-stopped
-    # Pull model on startup
-    command: >
-      bash -c "ollama serve & 
-      sleep 10 && 
-      ollama pull llama2 && 
-      tail -f /dev/null"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Pull model after service starts
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        ollama serve &
+        SERVER_PID=$$!
+        until curl -f http://localhost:11434/api/tags > /dev/null 2>&1; do
+          echo "Waiting for Ollama server..."
+          sleep 2
+        done
+        ollama pull llama2
+        wait $$SERVER_PID
 
   # Commentary Generator
   generator:
