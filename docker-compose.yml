@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # Ollama service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sports-commentary-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+    # Pull model on startup
+    command: >
+      bash -c "ollama serve & 
+      sleep 10 && 
+      ollama pull llama2 && 
+      tail -f /dev/null"
+
+  # Commentary Generator
+  generator:
+    build: .
+    container_name: sports-commentary-generator
+    depends_on:
+      - ollama
+    volumes:
+      - ./output:/app/output
+      - ./temp:/app/temp
+      - ./config.json:/app/config.json:ro
+      - ./client_secrets.json:/app/client_secrets.json:ro  # If using YouTube
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    # Run once and exit
+    # To run automatically: replace with cron or change command
+    command: python main.py
+    restart: "no"
+
+volumes:
+  ollama_data:
