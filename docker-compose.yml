@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # Ollama service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sports-commentary-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Pull model after service starts
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        ollama serve &
+        SERVER_PID=$$!
+        until curl -f http://localhost:11434/api/tags > /dev/null 2>&1; do
+          echo "Waiting for Ollama server..."
+          sleep 2
+        done
+        ollama pull llama2
+        wait $$SERVER_PID
+
+  # Commentary Generator
+  generator:
+    build: .
+    container_name: sports-commentary-generator
+    depends_on:
+      - ollama
+    volumes:
+      - ./output:/app/output
+      - ./temp:/app/temp
+      - ./config.json:/app/config.json:ro
+      - ./client_secrets.json:/app/client_secrets.json:ro  # If using YouTube
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    # Run once and exit
+    # To run automatically: replace with cron or change command
+    command: python main.py
+    restart: "no"
+
+volumes:
+  ollama_data:

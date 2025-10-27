@@ -1,0 +1,36 @@
+{
+  "rss_feeds": [
+    "https://www.espn.com/espn/rss/news",
+    "https://sports.yahoo.com/rss/"
+  ],
+  "ollama": {
+    "model": "llama2",
+    "host": "http://localhost:11434"
+  },
+  "piper": {
+    "executable": "piper",
+    "model": "en_US-lessac-medium"
+  },
+  "sadtalker": {
+    "checkpoint_dir": "./checkpoints",
+    "config_path": "./src/config/sadtalker.yaml"
+  },
+  "video": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "output_dir": "./output"
+  },
+  "youtube": {
+    "client_secrets_file": "client_secrets.json",
+    "scopes": ["https://www.googleapis.com/auth/youtube.upload"],
+    "title_template": "Sports Commentary - {headline}",
+    "description": "AI-generated sports commentary",
+    "category": "17",
+    "privacy_status": "public"
+  },
+  "script": {
+    "min_words": 80,
+    "max_words": 110
+  }
+}
